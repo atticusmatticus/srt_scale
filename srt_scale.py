@@ -1,6 +1,7 @@
 # python srt_scale.py [srt_file] [out_file] [minute_shift] [second_shift] [milsec_shift]
 import numpy as np
 import sys
+import codecs
 
 srt_file = sys.argv[1]
 outFile = str(sys.argv[2])
@@ -19,30 +20,30 @@ caption = []
 cap_lines = np.empty(((i+1)/4),dtype=int)
 
 i=0; j=0
-f = open(srt_file)
-for line in f:
-    if i == 0:
-        index[j] = line
-        i+=1
-        j+=1
-    elif i == 1:
-        time.append(line)
-        i+=1
-    elif i == 2:
-        caption.append(line)
-        i+=1
-    elif i == 3: # either empty or another caption line
-        if not line.strip(): # if line is empty
-            k=1
-            cap_lines[j-1] = k
-            i=0 # start over again
-        else: # if there is another caption line
+with codecs.open(srt_file, "r", "utf-8-sig") as f:
+    for line in f:
+        if i == 0:
+            index[j] = line
+            i+=1
+            j+=1
+        elif i == 1:
+            time.append(line)
+            i+=1
+        elif i == 2:
             caption.append(line)
-            k=2
-            cap_lines[j-1] = k
-            i=4
-    elif i == 4:
-        i=0
+            i+=1
+        elif i == 3: # either empty or another caption line
+            if not line.strip(): # if line is empty
+                k=1
+                cap_lines[j-1] = k
+                i=0 # start over again
+            else: # if there is another caption line
+                caption.append(line)
+                k=2
+                cap_lines[j-1] = k
+                i=4
+        elif i == 4:
+            i=0
 
 i=0; k=0
 f = open(outFile, 'w')
